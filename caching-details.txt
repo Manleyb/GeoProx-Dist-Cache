@@ -1,0 +1,42 @@
+caching mechanism:
+
+data can be separated into two different kinds that travel across the network:
+- sensor data
+  data that the sensor has acquired from sensors and minimally processed
+	* this is sent in a request to the cloud backend
+- response data
+  data that the cloud backend has processed and computed by interacting with other resources on the internet
+	* this is sent in a response back to the hardware device
+
+the challenge with creating a caching mechanism is which kind of data do you cache.
+this can be broken down into a few different cases:
+1. sensor data is cached:
+	- nodes will assume connection to the backend and make requests freely
+	- if they lose connection to the backend, sensor data is stored locally and across other nodes to provide reliability.
+	  this acts as a way to create a sample of sensor data that other nodes can then send back to the backend at a later point
+	- this provides increased durability for the data
+2. response data is cached:
+	- nodes will attempt to preserve backend state for other nodes to utilize, rather than making the request themself.
+	- a node will first check if its peer has api data
+	- if a peer node has the api data it will share with the node
+	- if no nodes have the data it will make a request to the backend and cache the data for other nodes
+3. a mixture of both occur
+	- this is the least optimal option for the following reasons:
+		* more data storage is necessary to prserve both sensor and response data
+		* more processing power is required on the hardware to handle both
+
+for the caching mechanism the focus will be on option 2.
+we want to preserve backend state for other nodes as a partial-alternative to edge computing -- every nodes acts as a micro-edge computer that other nodes can rely on.
+the reasoning for this is the same justification for edge computing:
+	- want to minimize the round-trip time (RTT) between the backend and a node, especially for large data processing
+	- provide quicker access to data, especially if multiple resources are being queried
+
+example use-case:
+	- nearly every house has a home device (i.e. Amazon Echo)
+	- there is a lot of overlap in the data that users request:
+		* weather forecast
+		* morning news brief
+		* traffic to work
+	- this data might be requested around the same time of day (i.e. morning)
+	- so rather than each node making a request to the backend, nodes will make requests to each other first.
+	- Alice and Bob live in the same local neighborhood. Alice and Bob always leave for work around the same time of day and use Amazon Echos to help inform them about their day to come. Bob wants to know what the weather forecast is today. Bob's device asks Alice's device if it knows the weather in the last 1 hour. Alice's devices responds that it doesn't. So Bob makes a request to the cloud and receives the latest weather and stores it. 15 minutes later, Alice's device then asks Bob's device what the weather is. Since Bob's device has a recent weather forecast stored it shares the data with Alice's device. Alice's device now stores the weather in case Charlie's device wants the weather. This is analogous to your neighbor coming over to your house asking for some sugar. 
