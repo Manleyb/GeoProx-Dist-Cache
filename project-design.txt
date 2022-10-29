@@ -1,0 +1,103 @@
+project design notes
+
+constraints:
+- we need to drastically minimize the scope of this project for the timeframe of this semester.
+- the following are constraints that seem reasonable:
+	* security is not a concern. The following will be ignored for the time being:
+		- data security -- encrypting/decrypting data
+		- authenticating connected peers
+		- transport layer security (i.e. http over https for example)
+	* locally focused (i.e. not concerned about creating a publicly available mesh network)
+	* assume all data is equal (i.e. size of data chunks, format of data, etc.):
+		- obviously this is not realistic in a real scenario
+		- will allow us to focus on the algorithmic challenge
+	* assume all the hardware will be the same (i.e. same model and configuration of pi):
+		- this is obviously also not realistic in a real scenario
+		- this will help improve the difficulty that comes with working with hardware.
+		  there will be fewer variables to deal with due to the limited variation
+		- the hardware components that will remain consistent:
+			* operating system
+			  while the nard sdk seems like a good option i think we should stick to raspbian
+			* microsd size
+	* assume that data collection will be at the same rate
+	  there will not be outliers were some nodes are collecting considerably more data than others
+		- this will allow us to make assumptions for the caching algorithm
+  as the project continues these constraints can be addressed more
+
+requirements:
+- these are things our system/protocol should have completed by the end of the semester timeframe -- bit of a stretch :)
+	* reliable communication between pis
+		- we'll assume that the network is private and won't need to discover peers
+		- need to decide on the protocols that will be used to communicate
+			* socket communication relies on TCP/IP
+			* NDN (Named-data networking) seems useful
+			* might want to go with traditional socket connection for now
+	* storage control:
+		- we need to devise an algorithm or multiple that will handle the following:
+			* data replication
+		 		- how much data is replicated across all the connected nodes
+				- what methodology will data be propagated to other nodes for replication
+				- should data be broken into smaller chunks and distributed, or should they remain there initial size
+				- what is the depth of data replication (i.e. immediate neighbors, neighbors of neighbors, etc.)
+				- should it be similar to a bittorrent/IPFS model
+			* caching replacement policy
+				- when should data be deleted and replaced with new data
+				- what are the conditions for data to be propagated and replicated on other nodes
+			* flow of data (directionality)
+				- should data coming from the cloud be cached
+				- should data coming from sensors be cached
+				- should data be cached both directions
+				- if cached both ways how should the caching policy handle this
+					* separate caches for cloud data (responses)
+					* single cache for all data and scrap
+		- we need a way to efficiently manage the pis storage
+			* seems like a lightweight database might be the way to go 
+			  (e.g. for instance sqlite is simply a file on os)
+			* other file formats could work to (i.e. .txt, .json, .csv, etc.)
+	* communicate with a cloud backend
+		- the cloud backend will do very minimal data processing -- more of a toy implementation
+		- will need to devise a protocol for how this communication will take place:
+			* how frequently will nodes communicate with the backend
+			* what are the conditions for a node to make a request
+future goals:
+- these goals contribute to a fully fledged decentralized IoT device
+	* distributed computing
+		- hardware devices processing each others computations
+		- this is where blockchains become a good solution
+		- envision this could be done in the following ways (splitballing -- most aren't efficient/pratical lol):
+			* literal parallel computing
+			  (i.e. each node is essentially a single thread)
+			  basic idea:
+			  	- node breaks up a computation into smaller parts
+				- makes a compute request to neighboring nodes to compute that part
+				- computing nodes process the request in a queue and send back result
+				- origin node assimilates the results over time
+			* selective computing
+			  basic idea:
+				- nodes with the most computing power are sought out
+				- the computation is added to the queue of the computing node
+				- if the queue is full, it finds the next powerful and so on
+			* blockchain virtual machine:
+				- similar to Ethereum Virtual Machine (EVM) and smart contracts
+	* public networking
+		- method of discovering nodes running the protocol
+
+proposed plan of attack:
+1. get basic communication of pis working (can always improve later/switch outs)
+2. setup storage system on the pis
+3. design and prototype caching algorithm on the pis
+4. incorporate cloud backend
+
+open items:
+- need to decided on an implementation language for our programs since we're no longer limited to an arduino
+	* C/C++ 
+	* Rust (probably limited support for but still very fast and reliable, also gaining popularity)
+- need a storage solution
+	* sqlite
+- pi communication (likely go with TCP/IP -- traditional method)
+- directionality of the caching mechanism (caching sensor data, cloud response data or both)
+- cloud backend interaction (how will our caching algorithm work with the backend)
+
+
+		
+		
