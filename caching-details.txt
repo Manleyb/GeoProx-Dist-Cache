@@ -40,3 +40,23 @@ example use-case:
 	- this data might be requested around the same time of day (i.e. morning)
 	- so rather than each node making a request to the backend, nodes will make requests to each other first.
 	- Alice and Bob live in the same local neighborhood. Alice and Bob always leave for work around the same time of day and use Amazon Echos to help inform them about their day to come. Bob wants to know what the weather forecast is today. Bob's device asks Alice's device if it knows the weather in the last 1 hour. Alice's devices responds that it doesn't. So Bob makes a request to the cloud and receives the latest weather and stores it. 15 minutes later, Alice's device then asks Bob's device what the weather is. Since Bob's device has a recent weather forecast stored it shares the data with Alice's device. Alice's device now stores the weather in case Charlie's device wants the weather. This is analogous to your neighbor coming over to your house asking for some sugar. 
+
+
+10/29/2022 -Bryce
+link for zero mq in go
+https://zeromq.org/languages/go/
+
+* we plan on using our own simplified NDN implementation for this project with a 
+reduced number of posable api searchable items
+
+For example: 
+	-Node 1 wants the weather, it asks all its neighbors for the weather for the most recent hour. 
+	-The weather will be stored in a hash table with the key being for example "weather.10.29.2022.10:00" and the value being the weather data.
+	-If the weather for the requested time is not found in the hash table then the node will return false. 
+	-If the node requesting the data (node 1) does not find any neighbors that have the data it will request it from the cloud and store it locally in its own hash 
+	table for others to request
+
+* We will be using the ZeroMQ library for our implementation of the NDN protocol. 
+
+
+
